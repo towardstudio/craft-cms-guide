@@ -1,0 +1,61 @@
+{% extends '_layouts/cp' %}
+
+{% set selectedSubnavItem = 'cms-guide' %}
+
+{% macro navLink(label, path, selected, nested) %}
+	<li{% if nested ?? false %} class="cms-guide-nav-child"{% endif %}>
+		<a href="{{ cpUrl('cms-guide' ~ (path ? '/' ~ path : '')) }}"{% if selected == (path ?: 'home') %} class="sel" aria-current="page"{% endif %}>
+			<span class="label">{{ label }}</span>
+		</a>
+	</li>
+{% endmacro %}
+
+{% block sidebar %}
+	<nav class="cms-guide-nav" aria-label="Guide contents">
+		<ul>
+			{{ _self.navLink('Start here', null, selected) }}
+
+			{% if nav.guide|length %}
+				<li class="heading"><span>Using the CMS</span></li>
+				{% for page in nav.guide %}
+					{{ _self.navLink(page.title, 'guide/' ~ page.slug, selected) }}
+				{% endfor %}
+			{% endif %}
+
+			{% if nav.sections|length %}
+				<li class="heading"><span>Your website</span></li>
+				{% for section in nav.sections %}
+					{{ _self.navLink(section.name, 'sections/' ~ section.handle, selected) }}
+				{% endfor %}
+			{% endif %}
+
+			{% if nav.blocks|length %}
+				<li class="heading"><span>Content blocks</span></li>
+				{% for item in nav.blocks %}
+					{{ _self.navLink(item.name, 'blocks/' ~ item.handle, selected) }}
+					{% for child in item.children %}
+						{{ _self.navLink(child.name, 'blocks/' ~ child.handle, selected, true) }}
+					{% endfor %}
+				{% endfor %}
+			{% endif %}
+
+			{% if nav.plugins|length %}
+				<li class="heading"><span>Extra tools</span></li>
+				{% for page in nav.plugins %}
+					{{ _self.navLink(page.title, 'plugins/' ~ page.slug, selected) }}
+				{% endfor %}
+			{% endif %}
+		</ul>
+	</nav>
+{% endblock %}
+
+{% block content %}
+	<div class="cms-guide">
+		{% block guide %}{% endblock %}
+
+		{% if settings.supportText %}
+			<h2>Need help?</h2>
+			{{ guide.render(settings.supportText)|raw }}
+		{% endif %}
+	</div>
+{% endblock %}

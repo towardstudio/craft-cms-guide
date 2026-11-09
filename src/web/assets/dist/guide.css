@@ -1,0 +1,189 @@
+/* CMS Guide: one design for every Toward site. Builds on Craft's own CP styles. */
+
+.cms-guide {
+	--guide-measure: 46rem;
+	--guide-muted: var(--gray-500, #606d7b);
+	--guide-border: var(--gray-200, #dfe5ec);
+	--guide-accent: var(--blue-600, #2563eb);
+	--guide-draft-bg: #fff7e0;
+	--guide-draft-border: #f2c94c;
+	max-width: var(--guide-measure);
+	font-size: 15px;
+	line-height: 1.6;
+}
+
+.cms-guide > * + * {
+	margin-top: 1rem;
+}
+
+.cms-guide h2 {
+	margin-top: 2.25rem;
+	font-size: 1.35rem;
+}
+.cms-guide h3 {
+	margin-top: 1.75rem;
+	font-size: 1.1rem;
+}
+.cms-guide p,
+.cms-guide li {
+	max-width: var(--guide-measure);
+}
+.cms-guide ul,
+.cms-guide ol {
+	padding-left: 1.5rem;
+}
+.cms-guide ul {
+	list-style: disc;
+}
+.cms-guide ol {
+	list-style: decimal;
+}
+.cms-guide li + li {
+	margin-top: 0.35rem;
+}
+.cms-guide a {
+	color: var(--guide-accent);
+	text-decoration: underline;
+	text-underline-offset: 2px;
+}
+.cms-guide kbd {
+	padding: 1px 6px;
+	border: 1px solid var(--guide-border);
+	border-radius: 4px;
+	background: var(--gray-050, #f3f7fc);
+	font-family: inherit;
+	font-size: 0.9em;
+}
+
+.cms-guide .guide-lead {
+	font-size: 1.1rem;
+	color: var(--guide-muted);
+}
+
+.cms-guide .guide-note {
+	padding: 0.75rem 1rem;
+	border-left: 4px solid var(--guide-accent);
+	border-radius: 4px;
+	background: var(--gray-050, #f3f7fc);
+}
+
+.cms-guide .guide-draft {
+	padding: 0.75rem 1rem;
+	border: 1px solid var(--guide-draft-border);
+	border-radius: 4px;
+	background: var(--guide-draft-bg);
+	font-size: 0.9rem;
+}
+
+.cms-guide .guide-source {
+	display: inline-block;
+	margin-left: 0.5rem;
+	padding: 0 0.4rem;
+	border-radius: 3px;
+	background: var(--gray-100, #e4edf6);
+	color: var(--guide-muted);
+	font-size: 0.7rem;
+	font-weight: 600;
+	letter-spacing: 0.03em;
+	text-transform: uppercase;
+	vertical-align: middle;
+}
+
+/* Field list */
+.cms-guide .guide-fields {
+	margin-top: 1rem;
+	border-top: 1px solid var(--guide-border);
+}
+.cms-guide .guide-field {
+	padding: 1rem 0;
+	border-bottom: 1px solid var(--guide-border);
+}
+.cms-guide .guide-field-head {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: 0.25rem 0.75rem;
+}
+.cms-guide .guide-field-name {
+	font-weight: 600;
+}
+.cms-guide .guide-field-meta {
+	color: var(--guide-muted);
+	font-size: 0.85rem;
+}
+.cms-guide .guide-field-required {
+	color: var(--red-600, #dc2626);
+	font-size: 0.85rem;
+}
+.cms-guide .guide-field-instructions {
+	margin-top: 0.35rem;
+}
+.cms-guide .guide-field-instructions > * + * {
+	margin-top: 0.5rem;
+}
+.cms-guide .guide-field-missing {
+	margin-top: 0.35rem;
+	color: var(--guide-muted);
+	font-style: italic;
+}
+.cms-guide .guide-field-blocks {
+	margin-top: 0.5rem;
+	font-size: 0.9rem;
+}
+.cms-guide .guide-tab-name {
+	margin-top: 1.5rem;
+	color: var(--guide-muted);
+	font-size: 0.8rem;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	background: var(--body-bg);
+	padding: 1rem;
+	border-radius: var(--border-radius);
+}
+
+/* Cards on the home page */
+.cms-guide .guide-cards {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+	gap: 1rem;
+	padding: 0;
+	list-style: none;
+}
+.cms-guide .guide-cards li {
+	margin: 0;
+}
+.cms-guide .guide-card {
+	display: block;
+	height: 100%;
+	padding: 1rem;
+	border: 1px solid var(--guide-border);
+	border-radius: 6px;
+	color: inherit;
+	text-decoration: none;
+}
+.cms-guide .guide-card:hover,
+.cms-guide .guide-card:focus-visible {
+	border-color: var(--guide-accent);
+}
+.cms-guide .guide-card strong {
+	display: block;
+	margin-bottom: 0.25rem;
+	color: var(--guide-accent);
+}
+.cms-guide .guide-card span {
+	color: var(--guide-muted);
+	font-size: 0.9rem;
+}
+
+/* Sidebar headings */
+#sidebar .cms-guide-nav .heading {
+	margin-top: 1rem;
+}
+#sidebar .cms-guide-nav .heading:first-child {
+	margin-top: 0;
+}
+#sidebar .cms-guide-nav .cms-guide-nav-child a {
+	padding-inline-start: 2rem;
+	font-size: 0.9em;
+}

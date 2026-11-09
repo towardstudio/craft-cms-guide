@@ -1,0 +1,46 @@
+{% extends 'cms-guide/_layout' %}
+
+{% block guide %}
+	<p class="guide-lead">How to add and update content on {{ siteName }}.</p>
+
+	{% if intro %}
+		{{ guide.render(intro.body)|raw }}
+	{% endif %}
+
+	{% if nav.guide|length %}
+		<h2>Using the CMS</h2>
+		<p>How the CMS works. This applies to every Craft website.</p>
+		<ul class="guide-cards">
+			{% for page in nav.guide %}
+				<li>
+					<a class="guide-card" href="{{ cpUrl('cms-guide/guide/' ~ page.slug) }}">
+						<strong>{{ page.title }}</strong>
+						{% if page.summary is defined %}<span>{{ page.summary }}</span>{% endif %}
+					</a>
+				</li>
+			{% endfor %}
+		</ul>
+	{% endif %}
+
+	{% if sections|length %}
+		<h2>Your website</h2>
+		<p>The areas of {{ siteName }} you can edit, and the fields in each one.</p>
+		<ul class="guide-cards">
+			{% for section in sections|filter(s => s) %}
+				<li>
+					<a class="guide-card" href="{{ cpUrl('cms-guide/sections/' ~ section.handle) }}">
+						<strong>{{ section.name }}</strong>
+						{% set cardText = section.summary ?: section.typeSummary %}
+						{% if cardText %}<span>{{ cardText }}</span>{% endif %}
+					</a>
+				</li>
+			{% endfor %}
+		</ul>
+	{% endif %}
+
+	<h2>Finding the CMS</h2>
+	<p>Log in at <a href="{{ loginUrl }}">{{ loginUrl }}</a>.</p>
+	{% if publicGuideUrl %}
+		<p>If you lose this link, go to <a href="{{ publicGuideUrl }}">{{ publicGuideUrl }}</a>. It takes you to the login page, then back to this guide.</p>
+	{% endif %}
+{% endblock %}

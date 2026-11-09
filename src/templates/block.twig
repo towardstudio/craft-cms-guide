@@ -1,0 +1,33 @@
+{% extends 'cms-guide/_layout' %}
+
+{% set entryType = blockInfo %}
+
+{% block guide %}
+	{% if blockInfo.description %}
+		<p class="guide-lead">{{ blockInfo.description }}</p>
+	{% endif %}
+
+	{% if notes %}
+		{% include 'cms-guide/_draft' with { page: notes } %}
+		{{ guide.render(notes.body)|raw }}
+	{% endif %}
+
+	<h2>Where you can add it</h2>
+	<ul>
+		{% for place in blockInfo.usedIn %}
+			<li>
+				The <strong>{{ place.fieldLabel }}</strong> field in
+				{% if place.parentIsBlock -%}
+					the <a href="{{ cpUrl('cms-guide/blocks/' ~ place.parentHandle) }}">{{ place.parentName }}</a> block
+				{%- elseif place.sectionNames|length -%}
+					{% for name in place.sectionNames %}{{ loop.first ? '' : (loop.last ? ' and ' : ', ') }}{{ name }}{% endfor %}
+				{%- else -%}
+					{{ place.parentName }}
+				{%- endif %}
+			</li>
+		{% endfor %}
+	</ul>
+
+	<h2>Fields</h2>
+	{% include 'cms-guide/_fields' %}
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends 'cms-guide/_layout' %}
+
+{% block guide %}
+	{% set summary = notes.summary ?? null %}
+
+	{% if summary %}
+		<p class="guide-lead">{{ summary }}</p>
+	{% endif %}
+
+	{% if section.typeSummary %}
+		<p{% if not summary %} class="guide-lead"{% endif %}>{{ section.typeSummary }}</p>
+	{% endif %}
+
+	{% if section.cpUrl %}
+		<p><a href="{{ section.cpUrl }}">Open {{ section.name }} in the CMS</a></p>
+	{% endif %}
+
+	{% if notes %}
+		{% include 'cms-guide/_draft' with { page: notes } %}
+		{% if notes.body|trim %}
+			{{ guide.render(notes.body)|raw }}
+		{% endif %}
+	{% endif %}
+
+	{% for entryType in section.entryTypes %}
+		{% if section.entryTypes|length > 1 %}
+			<h2>{{ entryType.name }}</h2>
+		{% else %}
+			<h2>Fields</h2>
+		{% endif %}
+
+		{% if entryType.description %}
+			<p>{{ entryType.description }}</p>
+		{% endif %}
+
+		{% include 'cms-guide/_fields' %}
+	{% endfor %}
+{% endblock %}

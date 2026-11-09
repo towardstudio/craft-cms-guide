@@ -1,0 +1,54 @@
+{# Renders the tabs and fields for one entry type. Expects `entryType` and `fieldTypeHelp`. #}
+
+{% set multipleTabs = entryType.tabs|length > 1 %}
+
+{% for tab in entryType.tabs %}
+	{% if multipleTabs %}
+		<p class="guide-tab-name">{{ tab.name }} tab</p>
+	{% endif %}
+
+	<div class="guide-fields">
+		{% for field in tab.fields %}
+			{% set help = fieldTypeHelp[field.typeClass] ?? null %}
+			{% set instructions = guide.renderInstructions(field.instructions) %}
+
+			<div class="guide-field">
+				<div class="guide-field-head">
+					<span class="guide-field-name">{{ field.label }}</span>
+					<span class="guide-field-meta">
+						{%- if help -%}
+							<a href="{{ cpUrl('cms-guide/' ~ help.path) }}">{{ field.typeName }}</a>
+						{%- else -%}
+							{{ field.typeName }}
+						{%- endif -%}
+					</span>
+					{% if field.required %}
+						<span class="guide-field-required">Required</span>
+					{% endif %}
+				</div>
+
+				{% if instructions %}
+					<div class="guide-field-instructions">{{ instructions|raw }}</div>
+				{% else %}
+					<p class="guide-field-missing">No instructions yet.</p>
+				{% endif %}
+
+				{% if field.blocks and field.blocks.types|length %}
+					<div class="guide-field-blocks">
+						<p>
+							Select <strong>{{ field.blocks.buttonLabel }}</strong> to add
+							{% if field.blocks.types|length == 1 %}an item{% else %}one of these blocks{% endif %}.
+							{%- if field.blocks.max %} You can add up to {{ field.blocks.max }}.{% endif %}
+							{%- if field.blocks.min %} You need at least {{ field.blocks.min }}.{% endif %}
+						</p>
+						<ul>
+							{% for type in field.blocks.types %}
+								<li><a href="{{ cpUrl('cms-guide/blocks/' ~ type.handle) }}">{{ type.name }}</a></li>
+							{% endfor %}
+						</ul>
+					</div>
+				{% endif %}
+			</div>
+		{% endfor %}
+	</div>
+{% endfor %}
