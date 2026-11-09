@@ -45,6 +45,7 @@ class CmsGuide extends Plugin
                 $event->rules['cms-guide/plugins/<slug:[\w\-]+>'] = 'cms-guide/guide/plugin';
                 $event->rules['cms-guide/sections/<handle:[\w\-]+>'] = 'cms-guide/guide/section';
                 $event->rules['cms-guide/blocks/<handle:[\w\-]+>'] = 'cms-guide/guide/block';
+                $event->rules['cms-guide/image/<source:site|plugin>/<path:.+>'] = 'cms-guide/image/serve';
             }
         );
 

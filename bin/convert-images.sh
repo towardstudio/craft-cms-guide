@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+#
+# Converts PNG and JPG images in a CMS guide folder to WebP for the guide.
+# Images wider than 1600px are scaled down (enough for Retina screens at the
+# guide's width). Metadata is stripped. Requires ImageMagick (brew install imagemagick).
+#
+# Usage, from the site's root folder:
+#   plugins/cms-guide/bin/convert-images.sh                      # converts images in ./cms-guide
+#   plugins/cms-guide/bin/convert-images.sh path/to/folder       # converts images in another folder
+#   plugins/cms-guide/bin/convert-images.sh --remove-originals   # also deletes each PNG/JPG once converted
+
+set -euo pipefail
+
+MAX_WIDTH=1600
+QUALITY=82
+REMOVE=false
+FOLDER="cms-guide"
+
+for arg in "$@"; do
+	case "$arg" in
+		--remove-originals) REMOVE=true ;;
+		-h|--help) sed -n '2,11p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+		*) FOLDER="$arg" ;;
+	esac
+done
+
+if ! command -v magick >/dev/null 2>&1; then
+	echo "ImageMagick isn't installed. Install it with: brew install imagemagick" >&2
+	exit 1
+fi
+
+if [ ! -d "$FOLDER" ]; then
+	echo "Folder not found: $FOLDER" >&2
+	exit 1
+fi
+
+count=0
+while IFS= read -r -d '' file; do
+	out="${file%.*}.webp"
+
+	magick "$file" -strip -resize "${MAX_WIDTH}x>" -quality "$QUALITY" "$out"
+
+	before=$(du -k "$file" | cut -f1)
+	after=$(du -k "$out" | cut -f1)
+	echo "Converted ${file#./} (${before}KB) -> ${out#./} (${after}KB)"
+
+	if $REMOVE; then
+		rm "$file"
+	fi
+	count=$((count + 1))
+done < <(find "$FOLDER" -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' \) -print0)
+
+if [ "$count" -eq 0 ]; then
+	echo "No PNG or JPG images found in $FOLDER"
+elif ! $REMOVE; then
+	echo "Done. The original files are still there. Delete them, or run again with --remove-originals."
+fi

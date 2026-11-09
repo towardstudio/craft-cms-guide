@@ -88,6 +88,7 @@ class GuideController extends Controller
             'title' => $block['name'],
             'blockInfo' => $block,
             'notes' => $plugin->content->getBlockNotes($handle),
+            'image' => $plugin->content->getBlockImage($handle),
             'selected' => 'blocks/' . $handle,
         ]);
     }

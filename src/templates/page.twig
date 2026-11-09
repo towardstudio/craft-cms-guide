@@ -2,7 +2,7 @@
 
 {% block guide %}
 	{% include 'cms-guide/_draft' %}
-	{{ guide.render(page.body)|raw }}
+	{{ guide.render(page.body, page.source)|raw }}
 
 	{% if page.siteNotes is defined and page.siteNotes.body|trim %}
 		<h2>Specific to {{ siteName }}</h2>

@@ -7,6 +7,12 @@
 		<p class="guide-lead">{{ blockInfo.description }}</p>
 	{% endif %}
 
+	{% if image %}
+		<figure class="guide-example">
+			<img src="{{ image.url }}" alt="How the {{ blockInfo.name }} block looks on the website">
+		</figure>
+	{% endif %}
+
 	{% if notes %}
 		{% include 'cms-guide/_draft' with { page: notes } %}
 		{{ guide.render(notes.body)|raw }}

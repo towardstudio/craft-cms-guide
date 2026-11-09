@@ -126,12 +126,107 @@ class Content extends Component
     }
 
     /**
-     * Renders a guide string: Twig first (for site name, URLs and so on), then Markdown.
+     * Example image for a content block: cms-guide/blocks/<handle>.(webp|png|jpg|...)
      */
-    public function render(string $markdown): string
+    public function getBlockImage(string $handle): ?array
+    {
+        foreach (self::IMAGE_EXTENSIONS as $ext) {
+            $path = "blocks/$handle.$ext";
+            if ($url = $this->imageUrl('site', $path)) {
+                return ['url' => $url, 'path' => $path];
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Renders a guide string: Twig first (for site name, URLs and so on), then Markdown.
+     *
+     * Relative image paths are resolved from the content folder the text came from:
+     * the site's cms-guide folder ('site') or the plugin's src/content folder ('generic').
+     * For example, ![Alt text](images/save-button.png).
+     */
+    public function render(string $markdown, string $source = 'site'): string
     {
         $markdown = Craft::$app->getView()->renderString($markdown, $this->variables(), View::TEMPLATE_MODE_CP);
-        return Markdown::process($markdown, 'gfm');
+        $html = Markdown::process($markdown, 'gfm');
+
+        return $this->resolveImages($html, $source === 'generic' ? 'plugin' : 'site');
+    }
+
+    public const IMAGE_EXTENSIONS = ['webp', 'png', 'jpg', 'jpeg', 'gif', 'avif'];
+
+    private const MIME_TYPES = [
+        'webp' => 'image/webp',
+        'png' => 'image/png',
+        'jpg' => 'image/jpeg',
+        'jpeg' => 'image/jpeg',
+        'gif' => 'image/gif',
+        'avif' => 'image/avif',
+    ];
+
+    /**
+     * Returns the absolute path of a guide image, or null if it doesn't exist,
+     * isn't an allowed image type, or falls outside the content folder.
+     */
+    public function resolveImagePath(string $source, string $path): ?string
+    {
+        $base = $source === 'plugin'
+            ? realpath($this->pluginContentPath())
+            : realpath((string)$this->siteContentPath());
+
+        if (!$base) {
+            return null;
+        }
+
+        $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+        if (!isset(self::MIME_TYPES[$ext])) {
+            return null;
+        }
+
+        $file = realpath($base . DIRECTORY_SEPARATOR . $path);
+
+        // Block requests that try to climb out of the content folder
+        if (!$file || !is_file($file) || !str_starts_with($file, $base . DIRECTORY_SEPARATOR)) {
+            return null;
+        }
+
+        return $file;
+    }
+
+    /**
+     * Control panel URL for a guide image, versioned by its modified time.
+     */
+    public function imageUrl(string $source, string $path): ?string
+    {
+        $file = $this->resolveImagePath($source, $path);
+        if (!$file) {
+            return null;
+        }
+
+        $path = implode('/', array_map('rawurlencode', explode('/', ltrim($path, '/'))));
+
+        return UrlHelper::cpUrl("cms-guide/image/$source/$path", ['v' => filemtime($file)]);
+    }
+
+    private function resolveImages(string $html, string $source): string
+    {
+        return preg_replace_callback('/<img\b([^>]*?)\bsrc="([^"]+)"([^>]*)>/i', function ($match) use ($source) {
+            [$tag, $before, $src, $after] = $match;
+
+            // Leave absolute URLs, root-relative paths and data URIs alone
+            if (preg_match('#^([a-z][a-z0-9+.-]*:|/)#i', $src)) {
+                return $tag;
+            }
+
+            $url = $this->imageUrl($source, html_entity_decode($src));
+
+            if (!$url) {
+                return '<span class="guide-image-missing">Image not found: ' . htmlspecialchars($src) . '</span>';
+            }
+
+            return '<img' . $before . 'src="' . htmlspecialchars($url) . '"' . $after . ' loading="lazy">';
+        }, $html);
     }
 
     /**
@@ -162,7 +257,24 @@ class Content extends Component
             'plugins' => CmsGuide::getInstance()->schema->getEnabledPluginHandles(),
             // Whether a redirect is created automatically when an entry's address changes
             'autoRedirects' => $this->autoRedirectsEnabled(),
+            // Markdown list linking to every content block page, nested like the sidebar
+            'blockList' => $this->blockListMarkdown(),
         ];
+    }
+
+    private function blockListMarkdown(): string
+    {
+        $lines = [];
+        $link = fn(array $block) => sprintf('[%s](%s)', $block['name'], UrlHelper::cpUrl('cms-guide/blocks/' . $block['handle']));
+
+        foreach (CmsGuide::getInstance()->schema->getBlocks() as $block) {
+            $lines[] = '- ' . $link($block);
+            foreach ($block['children'] as $child) {
+                $lines[] = '    - ' . $link($child);
+            }
+        }
+
+        return implode("\n", $lines);
     }
 
     private function autoRedirectsEnabled(): bool
@@ -218,9 +330,10 @@ class Content extends Component
         ]);
     }
 
-    private function pluginContentPath(string $folder): string
+    private function pluginContentPath(?string $folder = null): string
     {
-        return CmsGuide::getInstance()->getBasePath() . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . $folder;
+        $base = CmsGuide::getInstance()->getBasePath() . DIRECTORY_SEPARATOR . 'content';
+        return $folder ? $base . DIRECTORY_SEPARATOR . $folder : $base;
     }
 
     private function siteContentPath(?string $folder = null): ?string

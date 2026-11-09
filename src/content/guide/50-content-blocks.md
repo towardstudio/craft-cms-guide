@@ -6,8 +6,10 @@ fieldTypes:
 ---
 
 Some fields let you build content from a series of blocks. Each block is a different type of content, such as a heading with text, an image, or a grid of cards. You choose which blocks to use and what order they go in.
+{% if blockList %}
 
-[See the content blocks on {{ siteName }}]({{ guideUrl }}).
+The blocks available on {{ siteName }} are listed at the [end of this page](#site-blocks).
+{% endif %}
 
 ## Add a block
 
@@ -35,3 +37,11 @@ You can also drag blocks into a new order by clicking on the '4 dots' icon on th
 Some blocks contain their own list of items, such as the cards in a grid. These work the same way as the blocks on the page.
 
 Changes to blocks are saved when you save the entry they belong to.
+{% if blockList %}
+
+<h2 id="site-blocks">Blocks on {{ siteName }}</h2>
+
+Select a block to see its fields and where you can add it.
+
+{{ blockList }}
+{% endif %}
