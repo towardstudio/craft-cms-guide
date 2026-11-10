@@ -223,7 +223,11 @@ class Schema extends Component
             'min' => $field->minEntries,
             'max' => $field->maxEntries,
             'types' => array_map(
-                fn(EntryType $type) => ['name' => $type->name, 'handle' => $type->handle],
+                fn(EntryType $type) => [
+                    'name' => $type->name,
+                    'handle' => $type->handle,
+                    'isBlock' => isset($this->blockUsage()[$type->handle]),
+                ],
                 $this->visibleEntryTypes($field->getEntryTypes())
             ),
         ];
@@ -240,6 +244,8 @@ class Schema extends Component
 
         $usage = [];
         $entries = Craft::$app->getEntries();
+        $blockFieldIds = $this->blockFieldIds();
+        $blockHandles = $this->blockHandles($blockFieldIds);
 
         // Editors know sections ("Pages"), not entry types ("Default"), so name
         // top-level parents after the section(s) that use them.
@@ -251,9 +257,15 @@ class Schema extends Component
         }
 
         foreach ($entries->getAllEntryTypes() as $parentType) {
+            $parentIsBlock = isset($blockHandles[$parentType->handle]);
+
             foreach ($parentType->getFieldLayout()->getCustomFieldElements() as $element) {
                 $field = $element->getField();
                 if (!$field instanceof Matrix) {
+                    continue;
+                }
+                // Only a block field itself, or a Matrix field inside a block, counts
+                if (!$parentIsBlock && !isset($blockFieldIds[$field->id])) {
                     continue;
                 }
                 foreach ($field->getEntryTypes() as $blockType) {
@@ -262,21 +274,61 @@ class Schema extends Component
                         'parentName' => $parentType->name,
                         'sectionNames' => $sectionNames[$parentType->handle] ?? [],
                         'parentHandle' => $parentType->handle,
-                        'parentIsBlock' => false,
+                        'parentIsBlock' => $parentIsBlock,
                     ];
                 }
             }
         }
 
-        // Mark parents that are themselves blocks, so the guide can link to them.
-        foreach ($usage as &$places) {
-            foreach ($places as &$place) {
-                $place['parentIsBlock'] = isset($usage[$place['parentHandle']]);
+        return $this->_blockUsage = $usage;
+    }
+
+    /**
+     * IDs of the Matrix fields named in the blockFields setting, keyed by ID.
+     */
+    private function blockFieldIds(): array
+    {
+        $ids = [];
+        foreach (CmsGuide::getInstance()->getSettings()->blockFields as $handle) {
+            $field = Craft::$app->getFields()->getFieldByHandle($handle);
+            if ($field instanceof Matrix) {
+                $ids[$field->id] = true;
             }
         }
-        unset($places, $place);
 
-        return $this->_blockUsage = $usage;
+        return $ids;
+    }
+
+    /**
+     * Handles of every entry type that counts as a block: those in the block
+     * fields, plus those in Matrix fields inside a block (e.g. grid items), at any depth.
+     */
+    private function blockHandles(array $blockFieldIds): array
+    {
+        $queue = [];
+        foreach (array_keys($blockFieldIds) as $id) {
+            $field = Craft::$app->getFields()->getFieldById($id);
+            foreach ($field->getEntryTypes() as $type) {
+                $queue[] = $type;
+            }
+        }
+
+        $handles = [];
+        while ($type = array_shift($queue)) {
+            if (isset($handles[$type->handle])) {
+                continue;
+            }
+            $handles[$type->handle] = true;
+
+            foreach ($type->getFieldLayout()->getCustomFieldElements() as $element) {
+                $field = $element->getField();
+                if ($field instanceof Matrix) {
+                    array_push($queue, ...$field->getEntryTypes());
+                }
+            }
+        }
+
+        return $handles;
     }
 
     /**

@@ -43,7 +43,13 @@
 						</p>
 						<ul>
 							{% for type in field.blocks.types %}
-								<li><a href="{{ cpUrl('cms-guide/blocks/' ~ type.handle) }}">{{ type.name }}</a></li>
+								<li>
+									{%- if type.isBlock -%}
+										<a href="{{ cpUrl('cms-guide/blocks/' ~ type.handle) }}">{{ type.name }}</a>
+									{%- else -%}
+										{{ type.name }}
+									{%- endif -%}
+								</li>
 							{% endfor %}
 						</ul>
 					</div>

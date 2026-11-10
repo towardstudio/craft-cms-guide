@@ -1,11 +1,15 @@
 ---
 title: Redirects and broken links
 plugin: retour
-status: draft
 ---
+
 When a page moves or is deleted, people following old links can end up on an error page. Redirects send them to the right place instead.
 
 Redirects are managed in **Retour**, in the main menu on the left.
+
+## Dashboard
+
+The Retour dashboard gives you an overview of how many broken URLs (404s) have been encountered and whether those URLs were 'handled' (i.e. redirected to an actual page). You may find that the list shown here contains many URLs that are unrelated to the website. This is usually due to automated crawler bots that scan the website for common URL patterns (e.g. Wordpress login URLs).
 
 ## Add a redirect
 
