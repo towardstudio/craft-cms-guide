@@ -2,8 +2,7 @@
 	"name": "towardstudio/craft-cms-guide",
 	"description": "A CMS guide for content editors, built into the Craft control panel",
 	"type": "craft-plugin",
-	"version": "0.1.0",
-	"license": "proprietary",
+	"license": "MIT",
 	"authors": [
 		{
 			"name": "Toward",
@@ -14,6 +13,9 @@
 		"php": ">=8.2",
 		"craftcms/cms": "^5.0.0"
 	},
+	"bin": [
+		"bin/cms-guide-images"
+	],
 	"autoload": {
 		"psr-4": {
 			"towardstudio\\cmsguide\\": "src/"

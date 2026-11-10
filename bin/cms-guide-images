@@ -5,9 +5,9 @@
 # guide's width). Metadata is stripped. Requires ImageMagick (brew install imagemagick).
 #
 # Usage, from the site's root folder:
-#   plugins/cms-guide/bin/convert-images.sh                      # converts images in ./cms-guide
-#   plugins/cms-guide/bin/convert-images.sh path/to/folder       # converts images in another folder
-#   plugins/cms-guide/bin/convert-images.sh --remove-originals   # also deletes each PNG/JPG once converted
+#   vendor/bin/cms-guide-images                      # converts images in ./cms-guide
+#   vendor/bin/cms-guide-images path/to/folder       # converts images in another folder
+#   vendor/bin/cms-guide-images --remove-originals   # also deletes each PNG/JPG once converted
 
 set -euo pipefail
 
